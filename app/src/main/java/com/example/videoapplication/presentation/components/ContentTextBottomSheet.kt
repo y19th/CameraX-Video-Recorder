@@ -1,37 +1,39 @@
 package com.example.videoapplication.presentation.components
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun ContentTextBottomSheet(
     modifier: Modifier = Modifier,
     textNow: String
 ) {
-    Column(
+    Text(
         modifier = Modifier
             .fillMaxWidth()
+            .animateContentSize()
             .padding(all = 16.dp)
-            .then(modifier),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = textNow,
-            style = MaterialTheme.typography.displaySmall
-        )
-
-        Spacer(modifier = Modifier.height(128.dp))
-    }
-
+            .background(
+                color = Color.White,
+                shape = RoundedCornerShape(12.dp)
+            )
+            .padding(horizontal = 8.dp, vertical = 12.dp)
+            .then(modifier)
+        ,
+        text = textNow,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 18.sp,
+        textAlign = TextAlign.Center
+    )
 }

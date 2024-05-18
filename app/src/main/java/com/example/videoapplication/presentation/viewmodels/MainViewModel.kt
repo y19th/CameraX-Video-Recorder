@@ -1,15 +1,46 @@
 package com.example.videoapplication.presentation.viewmodels
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.res.Resources
 import androidx.lifecycle.ViewModel
 import com.example.videoapplication.MainActivity
+import com.example.videoapplication.R
+import com.example.videoapplication.domain.events.MainEvents
+import com.example.videoapplication.domain.models.RecordState
+import com.example.videoapplication.domain.state.MainState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 class MainViewModel : ViewModel() {
 
+    companion object {
+        const val RECORD_TIME_PARAM = "record_time"
+        const val SERVICE_BROADCAST_FILTER = "service_filter"
+    }
+
+
     private val _state = MutableStateFlow(MainState())
     val state = _state.asStateFlow()
+
+    //create states because too many receives
+    private val _recordTimeState = MutableStateFlow(0L)
+    val recordTime = _recordTimeState.asStateFlow()
+
+    val serviceBroadcastReceiver = object : BroadcastReceiver() {
+
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if(intent != null && intent.hasExtra(RECORD_TIME_PARAM)) {
+                _recordTimeState.update {
+                    val nanosec = intent.getLongExtra(RECORD_TIME_PARAM, recordTime.value)
+                    nanosec / 1_000_000_000
+                }
+            }
+        }
+    }
+
 
     init {
         _state.update {
@@ -64,27 +95,27 @@ class MainViewModel : ViewModel() {
 
     private fun initList(): List<String> {
         val mutableList = mutableListOf<String>()
-        for(i in 0..3) {
-            mutableList.add("Item $i index")
-        }
+        mutableList.addAll(ResourcesProvider.getInstance().getStringArray(R.array.video_record_hints))
         return mutableList
     }
-
 }
 
-sealed interface MainEvents {
+object ResourcesProvider {
+    var instance: Resources? = null
 
-    data class OnButtonClicked(val onRecordVideo: (MainActivity.VideoEvent) -> Unit): MainEvents
+    fun set(context: Context) {
+        instance = context.resources
+    }
+
+    @JvmName("providerGetInstance")
+    fun getInstance(): Resources {
+        return instance ?: throw NullPointerException("have no resources provider")
+    }
 }
 
-data class MainState(
-    val textNow: Pair<Int,String> = Pair(0, ""),
-    val textList: List<String> = listOf(),
-    val isEnded: Boolean = false,
+/*
+* bug: почему-то баг появился с если включить приложение и закрыть его, а потом снова
+*      открыть то крашнет из-за камеры
+* */
 
-    val recordState: RecordState = RecordState.WAIT
-)
 
-enum class RecordState {
-    RECORD, FINISH, WAIT
-}

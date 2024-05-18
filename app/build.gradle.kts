@@ -7,6 +7,16 @@ android {
     namespace = "com.example.videoapplication"
     compileSdk = 34
 
+    signingConfigs {
+        create("release") {
+            keyAlias = "release"
+            keyPassword = "191919"
+            storeFile = file("C:\\Users\\y19th\\keys\\videoapp.jks")
+            storePassword = "191919"
+        }
+    }
+
+
     defaultConfig {
         applicationId = "com.example.videoapplication"
         minSdk = 24
@@ -23,10 +33,12 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
+            isDebuggable = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
@@ -77,10 +89,8 @@ dependencies {
     implementation(libs.androidx.camera.video)
     implementation(libs.androidx.camera.extensions)
 
-    implementation(libs.androidx.work.ktx)
     implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.androidx.lifecycle.compose)
     implementation(libs.androidx.lifecycle.service)
-    implementation(libs.gson)
 
 }
