@@ -7,6 +7,7 @@ data class MainState(
     val textList: List<String> = listOf(),
     val isEnded: Boolean = false,
     val fileUri: String = "",
+    val isFlashOn: Boolean = false,
 
     val recordState: RecordState = RecordState.WAIT
 )

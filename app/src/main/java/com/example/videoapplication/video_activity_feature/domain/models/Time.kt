@@ -25,7 +25,7 @@ data class RecordTime(
 
     override fun toString(): String {
         return if(isUnspecified) {
-            "--:--"
+            "00:00"
         } else {
             if (minutes < 10) {
                 if(seconds < 10) {

@@ -200,6 +200,10 @@ class VideoService : LifecycleService() {
                                         MainViewModel.RECORD_TIME_PARAM,
                                         event.recordingStats.recordedDurationNanos
                                     )
+                                    putExtra(
+                                        MainViewModel.RECORD_SIZE_PARAM,
+                                        event.recordingStats.numBytesRecorded
+                                    )
                                 }
 
                                 applicationContext.sendBroadcast(intent)

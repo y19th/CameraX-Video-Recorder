@@ -1,5 +1,6 @@
 package com.example.videoapplication.video_activity_feature.presentation.screens
 
+import androidx.camera.core.TorchState
 import androidx.camera.view.LifecycleCameraController
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColor
@@ -14,10 +15,12 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -25,6 +28,9 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.FlashlightOff
+import androidx.compose.material.icons.filled.FlashlightOn
 import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -43,6 +49,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import com.example.videoapplication.ui.theme.ButtonBlue
+import com.example.videoapplication.ui.theme.ButtonGreen
+import com.example.videoapplication.ui.theme.ButtonRed
+import com.example.videoapplication.ui.theme.RecordRed
+import com.example.videoapplication.ui.theme.RecordWhite
 import com.example.videoapplication.video_activity_feature.VideoActivity
 import com.example.videoapplication.video_activity_feature.domain.events.MainEvents
 import com.example.videoapplication.video_activity_feature.domain.models.RecordState
@@ -50,12 +61,8 @@ import com.example.videoapplication.video_activity_feature.domain.models.RecordT
 import com.example.videoapplication.video_activity_feature.presentation.components.CameraPreviewScreen
 import com.example.videoapplication.video_activity_feature.presentation.components.ContentTextBottomSheet
 import com.example.videoapplication.video_activity_feature.presentation.components.FilledButton
+import com.example.videoapplication.video_activity_feature.presentation.components.IconButton
 import com.example.videoapplication.video_activity_feature.presentation.viewmodels.MainViewModel
-import com.example.videoapplication.ui.theme.ButtonBlue
-import com.example.videoapplication.ui.theme.ButtonGreen
-import com.example.videoapplication.ui.theme.ButtonRed
-import com.example.videoapplication.ui.theme.RecordRed
-import com.example.videoapplication.ui.theme.RecordWhite
 
 @Composable
 fun MainScreen(
@@ -68,6 +75,12 @@ fun MainScreen(
 
     var expanded by rememberSaveable {
         mutableStateOf(false)
+    }
+
+    val hasFlashUnit = rememberSaveable(controller.cameraInfo) {
+        if(controller.cameraInfo != null) {
+            controller.cameraInfo!!.hasFlashUnit()
+        } else false
     }
 
     val buttonColor by animateColorAsState(
@@ -105,63 +118,102 @@ fun MainScreen(
             modifier = Modifier.fillMaxSize(),
         )
 
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .align(Alignment.TopCenter)
                 .padding(vertical = 32.dp, horizontal = 12.dp)
-                .background(
-                    color = Color.White,
-                    shape = RoundedCornerShape(15.dp)
-                ),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly
+                .align(Alignment.TopCenter),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             Row(
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(vertical = 16.dp, horizontal = 12.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .fillMaxWidth()
+                    .background(
+                        color = Color.White,
+                        shape = RoundedCornerShape(15.dp)
+                    ),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Icon(
+
+                Row(
                     modifier = Modifier
-                        .background(
-                            color = if (state.recordState == RecordState.RECORD)
-                                recordColor else RecordWhite,
-                            shape = CircleShape
+                        .weight(1f)
+                        .padding(vertical = 16.dp, horizontal = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        modifier = Modifier
+                            .background(
+                                color = if (state.recordState == RecordState.RECORD)
+                                    recordColor else RecordWhite,
+                                shape = CircleShape
+                            )
+                            .padding(all = 8.dp),
+                        imageVector = Icons.Default.Videocam,
+                        contentDescription = "video_cam"
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    TimeBox(
+                        viewModel = viewModel
+                    )
+                }
+
+
+
+                FilledButton(
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .widthIn(min = 64.dp)
+                        .padding(vertical = 20.dp)
+                        .zIndex(2f),
+                    contentText = stringResource(id = buttonText),
+                    shape = RoundedCornerShape(topEnd = 12.dp, bottomEnd = 12.dp),
+                    enabled = !state.isEnded,
+                    colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
+                    onClick = {
+                        viewModel.onEvent(
+                            MainEvents.OnButtonClicked(onRecordVideo)
                         )
-                        .padding(all = 8.dp),
-                    imageVector = Icons.Default.Videocam,
-                    contentDescription = "video_cam"
-                )
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                TextBox(
-                    viewModel = viewModel
+                        expanded = true
+                    }
                 )
             }
 
+            Spacer(modifier = Modifier.height(24.dp))
 
-
-            FilledButton(
-                modifier = Modifier
-                    .wrapContentWidth()
-                    .widthIn(min = 64.dp)
-                    .padding(vertical = 20.dp)
-                    .zIndex(2f),
-                contentText = stringResource(id = buttonText),
-                shape = RoundedCornerShape(topEnd = 12.dp, bottomEnd = 12.dp),
-                enabled = !state.isEnded,
-                colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
-                onClick = {
-                    viewModel.onEvent(
-                        MainEvents.OnButtonClicked(onRecordVideo)
+            AnimatedVisibility(
+                visible = state.recordState == RecordState.RECORD
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    //horizontalArrangement = Arrangement.Center
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    IconButton(
+                        imageVector = if(state.isFlashOn)
+                            Icons.Default.FlashlightOff else Icons.Default.FlashlightOn,
+                        enabled = hasFlashUnit,
+                        onClick = {
+                            val newValue = controller.switchFlashlight()
+                            viewModel.onEvent(MainEvents.OnFlashSwitch(newValue))
+                        }
                     )
-                    expanded = true
+
+                    SizeBox(viewModel = viewModel)
+
+                    IconButton(
+                        imageVector = Icons.Default.CameraAlt,
+                        onClick = {
+                            /*TODO*/
+                        }
+                    )
                 }
-            )
+            }
         }
 
         AnimatedVisibility(
@@ -177,8 +229,40 @@ fun MainScreen(
     }
 }
 
+private fun LifecycleCameraController.switchFlashlight(): Boolean {
+    val cameraControl = this.cameraControl
+    val torchState = this.cameraInfo?.torchState?.value
+    val newValue = torchState == TorchState.OFF
+    if(cameraControl != null && torchState != null) {
+        cameraControl.enableTorch(newValue)
+    }
+    return newValue
+}
+
 @Composable
-fun TextBox(
+fun SizeBox(
+    modifier: Modifier = Modifier,
+    viewModel: MainViewModel
+) {
+    val state by viewModel.recordSize.collectAsState()
+
+    Text(
+        modifier = modifier
+            .background(
+                color = Color.White,
+                shape = RoundedCornerShape(5.dp)
+            )
+            .padding(vertical = 4.dp, horizontal = 8.dp)
+        ,
+        text = "$state mb",
+        color = Color.Black,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 16.sp
+    )
+}
+
+@Composable
+private fun TimeBox(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel
 ) {

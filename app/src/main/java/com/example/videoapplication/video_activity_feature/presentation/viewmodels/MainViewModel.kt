@@ -20,6 +20,7 @@ class MainViewModel : ViewModel() {
     companion object {
         const val RECORD_TIME_PARAM = "record_time"
         const val FILE_URI_PARAM = "file_uri"
+        const val RECORD_SIZE_PARAM = "record_size"
         const val SERVICE_BROADCAST_FILTER = "service_filter"
     }
 
@@ -31,22 +32,34 @@ class MainViewModel : ViewModel() {
     private val _recordTimeState = MutableStateFlow(0L)
     val recordTime = _recordTimeState.asStateFlow()
 
+    private val _recordSizeState = MutableStateFlow(0L)
+    val recordSize = _recordSizeState.asStateFlow()
+
     val serviceBroadcastReceiver = object : BroadcastReceiver() {
 
         override fun onReceive(context: Context?, intent: Intent?) {
-            if(intent != null && intent.hasExtra(RECORD_TIME_PARAM)) {
-                _recordTimeState.update {
-                    val nanosec = intent.getLongExtra(RECORD_TIME_PARAM, recordTime.value)
-                    nanosec / 1_000_000_000
+            if(intent != null) {
+                if(intent.hasExtra(RECORD_TIME_PARAM)) {
+                    _recordTimeState.update {
+                        val nanosec = intent.getLongExtra(RECORD_TIME_PARAM, recordTime.value)
+                        nanosec / 1_000_000_000
+                    }
                 }
-            }
-            if(intent != null && intent.hasExtra(FILE_URI_PARAM)) {
-                Log.w("MainViewModel", "resolved extra: ${intent.getStringExtra(FILE_URI_PARAM)}")
-                _state.update {
-                    val uri = intent.getStringExtra(FILE_URI_PARAM)
-                    if(uri != null) {
-                        it.copy(fileUri = uri)
-                    } else it
+                if(intent.hasExtra(FILE_URI_PARAM)) {
+                    Log.w("MainViewModel", "resolved extra: ${intent.getStringExtra(FILE_URI_PARAM)}")
+                    _state.update {
+                        val uri = intent.getStringExtra(FILE_URI_PARAM)
+                        if(uri != null) {
+                            it.copy(fileUri = uri)
+                        } else it
+                    }
+                }
+                if(intent.hasExtra(RECORD_SIZE_PARAM)) {
+                    _recordSizeState.update {
+                        val bytes = intent.getLongExtra(RECORD_SIZE_PARAM, recordSize.value)
+                        Log.w("MainViewModel", "recorded bytes: $bytes")
+                        bytes / (1024 * 1024)
+                    }
                 }
             }
         }
@@ -79,6 +92,10 @@ class MainViewModel : ViewModel() {
                         event.onRecordVideo.invoke(VideoActivity.VideoEvent.START)
                     }
                 }
+            }
+
+            is MainEvents.OnFlashSwitch -> {
+                _state.update { it.copy(isFlashOn = event.newValue) }
             }
         }
     }
