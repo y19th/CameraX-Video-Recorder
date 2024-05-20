@@ -1,4 +1,4 @@
-package com.example.videoapplication
+package com.example.videoapplication.video_activity_feature
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -26,8 +26,9 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleService
-import com.example.videoapplication.presentation.viewmodels.MainViewModel
+import com.example.videoapplication.R
 import com.example.videoapplication.util.CameraSingleton
+import com.example.videoapplication.video_activity_feature.presentation.viewmodels.MainViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -53,25 +54,25 @@ class VideoService : LifecycleService() {
             val cameraEvent = intent?.extras?.getInt(CAMERA_EVENT)
 
             if (cameraEvent != null) {
-                val event = MainActivity.VideoEvent.valueOf(cameraEvent)
+                val event = VideoActivity.VideoEvent.valueOf(cameraEvent)
                 when (event) {
-                    MainActivity.VideoEvent.START -> {
+                    VideoActivity.VideoEvent.START -> {
                         startCamera()
                     }
 
-                    MainActivity.VideoEvent.END -> {
+                    VideoActivity.VideoEvent.END -> {
                         stopCamera()
                     }
 
-                    MainActivity.VideoEvent.PAUSE -> {
+                    VideoActivity.VideoEvent.PAUSE -> {
                         pauseCamera()
                     }
 
-                    MainActivity.VideoEvent.RESUME -> {
+                    VideoActivity.VideoEvent.RESUME -> {
                         resumeCamera()
                     }
 
-                    MainActivity.VideoEvent.DESTROY -> {
+                    VideoActivity.VideoEvent.DESTROY -> {
                         destroyCamera()
                     }
                 }
@@ -155,6 +156,7 @@ class VideoService : LifecycleService() {
     override fun onDestroy() {
         super.onDestroy()
         destroyCamera()
+        deleteNotificationChannel()
     }
 
 
@@ -210,6 +212,15 @@ class VideoService : LifecycleService() {
                                     if(!controller.isRecording) {
                                         sendNotification("Запись успешно сохранена")
                                         Log.d(TAG, "completed video recording")
+
+                                        val intent = Intent().apply {
+                                            setAction(MainViewModel.SERVICE_BROADCAST_FILTER)
+                                            putExtra(
+                                                MainViewModel.FILE_URI_PARAM,
+                                                outputFile.absolutePath
+                                            )
+                                        }
+                                        applicationContext.sendBroadcast(intent)
                                     }
                                     Log.d(TAG, "started successfully")
                                 }
@@ -229,6 +240,11 @@ class VideoService : LifecycleService() {
             .createNotificationChannel(channel)
 
         return NotificationCompat.Builder(this, channelId)
+    }
+
+    private fun deleteNotificationChannel() {
+        getSystemService(NotificationManager::class.java)
+            .deleteNotificationChannel(channelId)
     }
 
     private fun sendNotification(contentText: String) {

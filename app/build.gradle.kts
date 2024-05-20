@@ -93,4 +93,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.compose)
     implementation(libs.androidx.lifecycle.service)
 
+    implementation(libs.androidx.media.media3)
+    implementation(libs.androidx.media.exoplayer)
+    implementation(libs.androidx.media.ui)
+
 }

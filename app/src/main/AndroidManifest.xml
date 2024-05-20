@@ -13,6 +13,10 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA"/>
 
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29"/>
+
     <application
         android:name=".MainApplication"
         android:allowBackup="true"
@@ -26,16 +30,15 @@
         tools:targetApi="31">
 
         <service
-            android:name=".VideoService"
+            android:name=".video_activity_feature.VideoService"
             android:foregroundServiceType="camera"
             android:exported="false"
             />
 
 
         <activity
-            android:name=".MainActivity"
+            android:name=".main_activity_feature.MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.VideoApplication">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -43,6 +46,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".video_activity_feature.VideoActivity"
+            android:exported="false"
+            />
     </application>
 
 </manifest>

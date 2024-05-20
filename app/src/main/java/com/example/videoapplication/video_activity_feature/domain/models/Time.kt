@@ -1,4 +1,4 @@
-package com.example.videoapplication.domain.models
+package com.example.videoapplication.video_activity_feature.domain.models
 
 data class RecordTime(
     val minutes: Int,

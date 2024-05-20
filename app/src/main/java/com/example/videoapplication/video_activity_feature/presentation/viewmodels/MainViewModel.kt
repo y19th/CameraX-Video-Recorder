@@ -1,15 +1,16 @@
-package com.example.videoapplication.presentation.viewmodels
+package com.example.videoapplication.video_activity_feature.presentation.viewmodels
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
+import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.example.videoapplication.MainActivity
 import com.example.videoapplication.R
-import com.example.videoapplication.domain.events.MainEvents
-import com.example.videoapplication.domain.models.RecordState
-import com.example.videoapplication.domain.state.MainState
+import com.example.videoapplication.video_activity_feature.VideoActivity
+import com.example.videoapplication.video_activity_feature.domain.events.MainEvents
+import com.example.videoapplication.video_activity_feature.domain.models.RecordState
+import com.example.videoapplication.video_activity_feature.domain.state.MainState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -18,6 +19,7 @@ class MainViewModel : ViewModel() {
 
     companion object {
         const val RECORD_TIME_PARAM = "record_time"
+        const val FILE_URI_PARAM = "file_uri"
         const val SERVICE_BROADCAST_FILTER = "service_filter"
     }
 
@@ -36,6 +38,15 @@ class MainViewModel : ViewModel() {
                 _recordTimeState.update {
                     val nanosec = intent.getLongExtra(RECORD_TIME_PARAM, recordTime.value)
                     nanosec / 1_000_000_000
+                }
+            }
+            if(intent != null && intent.hasExtra(FILE_URI_PARAM)) {
+                Log.w("MainViewModel", "resolved extra: ${intent.getStringExtra(FILE_URI_PARAM)}")
+                _state.update {
+                    val uri = intent.getStringExtra(FILE_URI_PARAM)
+                    if(uri != null) {
+                        it.copy(fileUri = uri)
+                    } else it
                 }
             }
         }
@@ -60,17 +71,18 @@ class MainViewModel : ViewModel() {
                         } else scrollText(RecordState.RECORD)
                     }
                     RecordState.FINISH -> {
-                        event.onRecordVideo.invoke(MainActivity.VideoEvent.END)
                         _state.update { it.copy(isEnded = true) }
+                        event.onRecordVideo.invoke(VideoActivity.VideoEvent.END)
                     }
                     RecordState.WAIT -> {
                         scrollText(recordState = RecordState.RECORD)
-                        event.onRecordVideo.invoke(MainActivity.VideoEvent.START)
+                        event.onRecordVideo.invoke(VideoActivity.VideoEvent.START)
                     }
                 }
             }
         }
     }
+
 
     private fun Pair<Int, String>.next(): String {
         if(first + 1 < state.value.textList.size) {

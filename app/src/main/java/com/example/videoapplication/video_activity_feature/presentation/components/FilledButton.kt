@@ -1,4 +1,4 @@
-package com.example.videoapplication.presentation.components
+package com.example.videoapplication.video_activity_feature.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

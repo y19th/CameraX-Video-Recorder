@@ -1,4 +1,4 @@
-package com.example.videoapplication
+package com.example.videoapplication.video_activity_feature
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -15,16 +15,21 @@ import androidx.annotation.RequiresApi
 import androidx.camera.view.CameraController
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.videoapplication.presentation.screens.MainScreen
-import com.example.videoapplication.presentation.viewmodels.MainViewModel
+import com.example.videoapplication.main_activity_feature.MainActivity
 import com.example.videoapplication.ui.theme.VideoApplicationTheme
 import com.example.videoapplication.util.CameraSingleton
+import com.example.videoapplication.video_activity_feature.domain.models.RecordState
+import com.example.videoapplication.video_activity_feature.presentation.screens.MainScreen
+import com.example.videoapplication.video_activity_feature.presentation.viewmodels.MainViewModel
 
-class MainActivity : ComponentActivity() {
+class VideoActivity : ComponentActivity() {
 
     private val viewModel by viewModels<MainViewModel>()
 
@@ -43,7 +48,19 @@ class MainActivity : ComponentActivity() {
         registerServiceBroadcastReceiver()
 
 
+
         setContent {
+
+            val state by viewModel.state.collectAsState()
+
+            LaunchedEffect(state.fileUri ) {
+                if(state.recordState == RecordState.FINISH && state.fileUri.isNotEmpty()) {
+                    intent.putExtra(MainActivity.RECORDED_VIDEO, state.fileUri)
+                    setResult(RESULT_OK, intent)
+                    this@VideoActivity.finish()
+                }
+            }
+
             VideoApplicationTheme {
                 val controller = remember {
                     CameraSingleton.getInstance(applicationContext).apply {
@@ -139,7 +156,7 @@ class MainActivity : ComponentActivity() {
     }
 
     companion object {
-        private val CAMERAX_PERMISSIONS = arrayOf(
+        val CAMERAX_PERMISSIONS = arrayOf(
             Manifest.permission.CAMERA,
             Manifest.permission.RECORD_AUDIO
         )

@@ -1,4 +1,4 @@
-package com.example.videoapplication.presentation.components
+package com.example.videoapplication.video_activity_feature.presentation.components
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background

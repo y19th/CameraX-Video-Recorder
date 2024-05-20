@@ -3,6 +3,7 @@
     <string name="start_record">Начать</string>
     <string name="continue_record">Продолжить</string>
     <string name="finish_record">Закончить</string>
+    <string name="finished_record">Закончена</string>
     <string-array name="video_record_hints">
         <item>Какой-то текст, например покажите документы на камеру</item>
         <item>А теперь обойдите машину 3 раза и присядьте 7 раз, посмотрите под подушку и там будет 1000 рублей</item>

@@ -1,4 +1,4 @@
-package com.example.videoapplication.presentation.screens
+package com.example.videoapplication.video_activity_feature.presentation.screens
 
 import androidx.camera.view.LifecycleCameraController
 import androidx.compose.animation.AnimatedVisibility
@@ -43,14 +43,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import com.example.videoapplication.MainActivity
-import com.example.videoapplication.domain.events.MainEvents
-import com.example.videoapplication.domain.models.RecordState
-import com.example.videoapplication.domain.models.RecordTime
-import com.example.videoapplication.presentation.components.CameraPreviewScreen
-import com.example.videoapplication.presentation.components.ContentTextBottomSheet
-import com.example.videoapplication.presentation.components.FilledButton
-import com.example.videoapplication.presentation.viewmodels.MainViewModel
+import com.example.videoapplication.video_activity_feature.VideoActivity
+import com.example.videoapplication.video_activity_feature.domain.events.MainEvents
+import com.example.videoapplication.video_activity_feature.domain.models.RecordState
+import com.example.videoapplication.video_activity_feature.domain.models.RecordTime
+import com.example.videoapplication.video_activity_feature.presentation.components.CameraPreviewScreen
+import com.example.videoapplication.video_activity_feature.presentation.components.ContentTextBottomSheet
+import com.example.videoapplication.video_activity_feature.presentation.components.FilledButton
+import com.example.videoapplication.video_activity_feature.presentation.viewmodels.MainViewModel
 import com.example.videoapplication.ui.theme.ButtonBlue
 import com.example.videoapplication.ui.theme.ButtonGreen
 import com.example.videoapplication.ui.theme.ButtonRed
@@ -62,7 +62,7 @@ fun MainScreen(
     modifier: Modifier = Modifier,
     controller: LifecycleCameraController,
     viewModel: MainViewModel,
-    onRecordVideo: (MainActivity.VideoEvent) -> Unit,
+    onRecordVideo: (VideoActivity.VideoEvent) -> Unit,
 ) {
     val state by viewModel.state.collectAsState()
 
