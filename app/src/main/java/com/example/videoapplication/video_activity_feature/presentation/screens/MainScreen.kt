@@ -183,10 +183,10 @@ fun MainScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             AnimatedVisibility(
-                visible = state.recordState == RecordState.RECORD
+                visible = state.recordState != RecordState.WAIT
             ) {
                 Row(
                     modifier = Modifier
@@ -250,7 +250,7 @@ fun SizeBox(
         modifier = modifier
             .background(
                 color = Color.White,
-                shape = RoundedCornerShape(5.dp)
+                shape = RoundedCornerShape(10.dp)
             )
             .padding(vertical = 4.dp, horizontal = 8.dp)
         ,

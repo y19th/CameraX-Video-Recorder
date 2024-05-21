@@ -50,7 +50,7 @@ fun IconButton(
     Box(modifier = Modifier
         .background(
             color = if(enabled) Color.White else Color.LightGray,
-            shape = RoundedCornerShape(5.dp)
+            shape = RoundedCornerShape(10.dp)
         )
         .clickable {
             onClick.invoke()

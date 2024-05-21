@@ -15,7 +15,10 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraSelector
+import androidx.camera.video.FallbackStrategy
 import androidx.camera.video.FileOutputOptions
+import androidx.camera.video.Quality
+import androidx.camera.video.QualitySelector
 import androidx.camera.video.Recording
 import androidx.camera.video.VideoRecordEvent
 import androidx.camera.view.CameraController
@@ -122,7 +125,7 @@ class VideoService : LifecycleService() {
             Log.w(TAG, "not allow to foreground")
             stopSelf()
         }
-        return START_NOT_STICKY
+        return START_STICKY
     }
 
     private fun hasRequiredPermissions(): Boolean {
@@ -155,6 +158,7 @@ class VideoService : LifecycleService() {
 
     override fun onDestroy() {
         super.onDestroy()
+        applicationContext.unregisterReceiver(commandBroadcast)
         destroyCamera()
         deleteNotificationChannel()
     }
@@ -162,6 +166,8 @@ class VideoService : LifecycleService() {
 
     @SuppressLint("MissingPermission")
     private fun startCamera() {
+
+        Log.w(TAG, "lifecycle: ${lifecycle.currentState}" )
 
         val controller = CameraSingleton.getInstance(applicationContext).apply {
             setEnabledUseCases(CameraController.VIDEO_CAPTURE or CameraController.IMAGE_ANALYSIS)
@@ -171,6 +177,12 @@ class VideoService : LifecycleService() {
         }
 
         controller.initializationFuture.addListener({
+
+            controller.videoCaptureQualitySelector = QualitySelector.fromOrderedList(
+                listOf(Quality.SD, Quality.HD, Quality.LOWEST, Quality.HIGHEST),
+                FallbackStrategy.higherQualityOrLowerThan(Quality.HIGHEST)
+            )
+
             coroutineScope.launch {
                 if(!controller.isRecording) {
                     recording = controller.startRecording(
